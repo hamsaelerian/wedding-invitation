@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Invitation - Donia & Mohamed</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital@1&family=Cinzel+Decorative:wght@700&family=Monsieur+La+Doulaise&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        blush: {
+                            50: '#fff5f5',
+                            100: '#ffe3e3',
+                            200: '#ffc9c9',
+                            300: '#ffa3a3',
+                            600: '#e06d73',
+                            700: '#c94c53',
+                        },
+                        // درجات الكشمير الجديدة الغامقة
+                        dusty: {
+                            200: '#D7A7AA',
+                            300: '#B8868A',
+                            400: '#9B6A6E',
+                            600: '#7F5054', // اللون الكشمير الغامق الرئيسي
+                            700: '#673E41',
+                            800: '#4D2E31',
+                            900: '#351F21'
+                        },
+                        gold: {
+                            100: '#fdf2cc',
+                            200: '#fbe599',
+                            400: '#f7cf43',
+                            500: '#d4af37',
+                            600: '#aa8c2c',
+                        },
+                        charcoal: '#2D2D2D'
+                    },
+                    fontFamily: {
+                        serif: ['Montserrat', 'sans-serif'],
+                        arabic: ['Amiri', 'serif'],
+                        cursive: ['Monsieur La Doulaise', 'cursive'],
+                        display: ['Cinzel Decorative', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #351F21; } /* كشمير غامق جداً للخلفية */
+        ::-webkit-scrollbar-thumb { background: #d4af37; border-radius: 3px; }
+
+        .bg-luxurious {
+            /* تدرج قطري من كشمير غامق لأسود تقريباً */
+            background: radial-gradient(circle, #7F5054 0%, #351F21 100%);
+            position: relative;
+        }
+        .islamic-arch {
+            border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+            border: 2px solid #d4af37;
+            position: relative;
+        }
+        .islamic-arch::after {
+            content: '';
+            position: absolute;
+            inset: -6px;
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            border-radius: 50% 50% 0 0 / 40% 40% 0 0;
+            pointer-events: none;
+        }
+
+        @keyframes floatPetal {
+            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh) translateX(50px) rotate(360deg); opacity: 0; }
+        }
+        .petal {
+            position: absolute;
+            /* بتلات ب تدرج كشمير متوسط */
+            background: radial-gradient(circle, #B8868A 0%, #7F5054 100%);
+            border-radius: 10px 0 10px 10px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .glow-gold {
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-stone-900 text-gold-100 font-serif antialiased overflow-x-hidden min-h-screen flex justify-center items-center select-none"
+      x-data="weddingApp()">
+
+    <audio id="bgMusic" loop>
+        <source src="https://serv100.albumaty.com/dl/alf/om-kalsoum/Albumaty.com.Om.Kalsoum.Alf.Lela.W.Lela.mp3">
+    </audio>
+
+    <div class="fixed inset-0 pointer-events-none z-40 overflow-hidden" id="petal-container"></div>
+
+    <div class="relative w-full max-w-md h-[92vh] bg-luxurious shadow-2xl rounded-2xl overflow-hidden my-4 border-4 border-gold-500/20">
+        
+        <button @click="toggleMusic()" x-show="isOpen" x-transition
+                class="fixed bottom-6 right-6 md:absolute md:bottom-6 md:right-6 z-50 bg-dusty-900/90 backdrop-blur-sm border border-gold-500 text-gold-600 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-transform active:scale-95">
+            <i class="fas" :class="isMuted ? 'fa-volume-mute' : 'fa-volume-up'"></i>
+        </button>
+
+        <div x-show="!isOpen" 
+             x-transition:leave="transition ease-in duration-1000 transform"
+             x-transition:leave-start="opacity-100 scale-100"
+             x-transition:leave-end="opacity-0 scale-95 pointer-events-none"
+             class="absolute inset-0 z-50 bg-gradient-to-b from-dusty-700 to-dusty-900 flex flex-col items-center justify-center p-6 text-center">
+            
+            <div class="absolute inset-4 border border-gold-500/30 rounded-xl pointer-events-none flex items-center justify-center">
+                <div class="w-[92%] h-[95%] border border-gold-500/10 rounded-lg"></div>
+            </div>
+
+            <div class="relative w-full max-w-sm aspect-[4/3] bg-dusty-900 rounded-lg shadow-xl border border-gold-200 p-8 flex flex-col justify-center items-center overflow-hidden">
+                <div class="absolute top-0 inset-x-0 h-1/2 bg-gradient-to-b from-dusty-800 to-transparent pointer-events-none"></div>
+                
+                <h3 class="font-display text-gold-400 text-sm tracking-widest mb-2">THE WEDDING INVITATION OF</h3>
+                <h2 class="font-cursive text-5xl text-gold-500 my-2">Donia & Mohamed</h2>
+                <p class="text-xs text-dusty-300 tracking-widest uppercase mt-2">Tap the wax seal to open</p>
+                
+                <div class="relative mt-8 group cursor-pointer" @click="openInvitation()">
+                    <div class="absolute inset-0 rounded-full bg-gold-500/30 blur-md group-hover:blur-xl transition-all duration-500 animate-pulse"></div>
+                    
+                    <div class="relative w-20 h-20 bg-gradient-to-br from-red-900 via-dusty-800 to-black rounded-full flex items-center justify-center border-2 border-gold-400 shadow-xl transform active:scale-90 transition-transform duration-200">
+                        <div class="w-16 h-16 rounded-full border border-gold-500/40 flex flex-col items-center justify-center text-gold-200 font-display text-xl tracking-tighter bg-gradient-to-tl from-red-950 to-dusty-900">
+                            <span class="font-cursive text-3xl leading-none text-gold-100">D&M</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="mt-8 text-xs font-serif tracking-widest text-gold-600 uppercase">Packaged with love & blessings</p>
+        </div>
+
+        <div x-show="isOpen" x-transition:enter="transition ease-out duration-1000 delay-300"
+             x-transition:enter-start="opacity-0 translate-y-12"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             class="w-full h-full overflow-y-auto px-6 py-12 space-y-12 bg-luxurious">
+
+            <div class="islamic-arch bg-dusty-900/60 backdrop-blur-[2px] px-4 py-12 text-center shadow-sm">
+                <div class="text-gold-500 text-xs tracking-widest mb-4 font-arabic text-2xl">بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ</div>
+                
+                <p class="text-dusty-100 italic text-xs max-w-xs mx-auto mb-6">
+                    "Two Souls, One Destiny – A Lifetime written by Allah"
+                </p>
+
+                <h1 class="font-cursive text-6xl text-gold-500 my-4 tracking-wide">Donia</h1>
+                <div class="flex items-center justify-center my-2 text-gold-500">
+                    <span class="h-[1px] w-12 bg-gold-500/40"></span>
+                    <span class="mx-3 font-display text-lg">&</span>
+                    <span class="h-[1px] w-12 bg-gold-500/40"></span>
+                </div>
+                <h1 class="font-cursive text-6xl text-gold-500 my-4 tracking-wide">Mohamed</h1>
+
+                <p class="text-dusty-200 font-medium tracking-widest uppercase text-xs mt-8">Request the honor of your presence at their marriage celebration</p>
+
+                <div class="mt-8 inline-block border-t border-b border-gold-500/60 py-3 px-6">
+                    <p class="font-display text-gold-400 tracking-widest text-sm">SATURDAY, JULY 25, 2026</p>
+                </div>
+            </div>
+
+            <div class="bg-dusty-900/80 backdrop-blur-sm border border-gold-500/30 rounded-xl p-6 text-center shadow-sm">
+                <h4 class="font-display text-xs text-gold-600 tracking-widest mb-4 uppercase">Counting down to the big day</h4>
+                <div class="grid grid-cols-4 gap-2 text-center">
+                    <div class="p-2 bg-dusty-800 rounded-lg border border-dusty-700">
+                        <span class="block font-display text-xl text-gold-400" x-text="countdown.days">00</span>
+                        <span class="text-[10px] tracking-wider text-dusty-300 uppercase">Days</span>
+                    </div>
+                    <div class="p-2 bg-dusty-800 rounded-lg border border-dusty-700">
+                        <span class="block font-display text-xl text-gold-400" x-text="countdown.hours">00</span>
+                        <span class="text-[10px] tracking-wider text-dusty-300 uppercase">Hrs</span>
+                    </div>
+                    <div class="p-2 bg-dusty-800 rounded-lg border border-dusty-700">
+                        <span class="block font-display text-xl text-gold-400" x-text="countdown.minutes">00</span>
+                        <span class="text-[10px] tracking-wider text-dusty-300 uppercase">Mins</span>
+                    </div>
+                    <div class="p-2 bg-dusty-800 rounded-lg border border-dusty-700">
+                        <span class="block font-display text-xl text-gold-400" x-text="countdown.seconds">00</span>
+                        <span class="text-[10px] tracking-wider text-dusty-300 uppercase">Secs</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="text-center">
+                    <h3 class="font-display text-sm tracking-widest text-gold-600 uppercase">Itinerary</h3>
+                    <div class="w-12 h-[1px] bg-gold-500 mx-auto mt-2"></div>
+                </div>
+                
+                <div class="relative border-l border-gold-500/30 ml-4 pl-6 space-y-8 py-2">
+                    <div class="relative">
+                        <span class="absolute -left-9 top-0 bg-dusty-900 border border-gold-500 w-6 h-6 rounded-full flex items-center justify-center text-xs text-gold-600 shadow-sm">
+                            <i class="fas fa-seedling text-[10px]"></i>
+                        </span>
+                        <h4 class="font-display text-xs tracking-wider text-gold-600">5:00 PM</h4>
+                        <p class="font-medium text-dusty-100 text-sm">Guest Arrival</p>
+                        <p class="text-xs text-dusty-300">Welcome refreshments and seating</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-9 top-0 bg-dusty-900 border border-gold-500 w-6 h-6 rounded-full flex items-center justify-center text-xs text-gold-600 shadow-sm">
+                            <i class="fas fa-heart text-[10px]"></i>
+                        </span>
+                        <h4 class="font-display text-xs tracking-wider text-gold-600">6:00 PM</h4>
+                        <p class="font-medium text-dusty-100 text-sm">Nikah Ceremony</p>
+                        <p class="text-xs text-dusty-300">The solemnization of holy matrimony</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-9 top-0 bg-dusty-900 border border-gold-500 w-6 h-6 rounded-full flex items-center justify-center text-xs text-gold-600 shadow-sm">
+                            <i class="fas fa-cocktail text-[10px]"></i>
+                        </span>
+                        <h4 class="font-display text-xs tracking-wider text-gold-600">7:00 PM</h4>
+                        <p class="font-medium text-dusty-100 text-sm">Mocktail Hour</p>
+                        <p class="text-xs text-dusty-300">Hors-d'œuvres & luxury signature mocktails</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-9 top-0 bg-dusty-900 border border-gold-500 w-6 h-6 rounded-full flex items-center justify-center text-xs text-gold-600 shadow-sm">
+                            <i class="fas fa-utensils text-[10px]"></i>
+                        </span>
+                        <h4 class="font-display text-xs tracking-wider text-gold-600">8:00 PM</h4>
+                        <p class="font-medium text-dusty-100 text-sm">Grand Dinner</p>
+                        <p class="text-xs text-dusty-300">A curated culinary experience feast</p>
+                    </div>
+                    <div class="relative">
+                        <span class="absolute -left-9 top-0 bg-dusty-900 border border-gold-500 w-6 h-6 rounded-full flex items-center justify-center text-xs text-gold-600 shadow-sm">
+                            <i class="fas fa-music text-[10px]"></i>
+                        </span>
+                        <h4 class="font-display text-xs tracking-wider text-gold-600">9:00 PM</h4>
+                        <p class="font-medium text-dusty-100 text-sm">Celebration & Dance</p>
+                        <p class="text-xs text-dusty-300">Joyous transitions, dancing and departure</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-dusty-900/80 backdrop-blur-sm border border-gold-500/30 rounded-xl overflow-hidden shadow-sm">
+                <div class="p-6 text-center space-y-2">
+                    <i class="fas fa-map-marked-alt text-gold-500 text-xl"></i>
+                    <h3 class="font-display text-xs tracking-widest text-gold-600 uppercase">The Venue</h3>
+                    <h4 class="font-medium text-dusty-100 text-base">Villa Fehed Hall</h4>
+                </div>
+                <div class="bg-gradient-to-r from-dusty-800 to-gold-900 p-4 text-center border-t border-gold-500/20">
+                    <a href="https://maps.app.goo.gl/VbefDotco2agfThG6">
+                        <span class="text-gold-100">Open Google Maps Direction</span>
+                        <i class="fas fa-external-link-alt text-[10px] text-gold-200"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-dusty-900/60 backdrop-blur-sm border border-gold-500/20 rounded-xl p-4 text-center space-y-2">
+                    <i class="fas fa-user-tie text-gold-500"></i>
+                    <h4 class="font-display text-[11px] tracking-wider text-gold-600 uppercase">Dress Code</h4>
+                    <p class="text-xs text-dusty-200">Formal Luxury attire. Modest, Dusty Rose, Dark Blush & Gold Tones preferred.</p>
+                </div>
+                <div class="bg-dusty-900/60 backdrop-blur-sm border border-gold-500/20 rounded-xl p-4 text-center space-y-2">
+                    <i class="fas fa-gift text-gold-500"></i>
+                    <h4 class="font-display text-[11px] tracking-wider text-gold-600 uppercase">Gift Preference</h4>
+                    <p class="text-xs text-dusty-200">Your presence is our perfect gift. However, if desired, no boxed gifts please.</p>
+                </div>
+            </div>
+
+            <div class="bg-dusty-900/90 backdrop-blur-sm border-2 border-gold-500/40 rounded-xl p-6 shadow-md relative" id="rsvp-section">
+                <div class="text-center mb-6">
+                    <h3 class="font-display text-sm tracking-widest text-gold-600 uppercase">Kindly Reply (RSVP)</h3>
+                    <p class="text-[10px] text-dusty-300 uppercase tracking-widest mt-1">Please respond before July 10, 2026</p>
+                </div>
+
+                <template x-if="!rsvpSubmitted">
+                    <form @submit.prevent="submitRSVP()" class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-dusty-200 mb-1">Full Name</label>
+                            <input type="text" required x-model="form.name" class="w-full bg-dusty-800/50 border border-gold-500/30 rounded-lg px-3 py-2 text-sm text-gold-100 focus:outline-none focus:border-gold-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] uppercase tracking-wider text-dusty-200 mb-1">Will you attend?</label>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" @click="form.attending = 'Yes'" :class="form.attending === 'Yes' ? 'bg-gold-500 text-dusty-900 border-gold-500' : 'bg-transparent border-dusty-700 text-dusty-300'" class="border py-2 text-xs uppercase tracking-wider rounded-lg transition-colors font-medium">
+                                    Joyfully Accept
+                                </button>
+                                <button type="button" @click="form.attending = 'No'" :class="form.attending === 'No' ? 'bg-dusty-700 text-white border-dusty-700' : 'bg-transparent border-dusty-700 text-dusty-300'" class="border py-2 text-xs uppercase tracking-wider rounded-lg transition-colors font-medium">
+                                    Regretfully Decline
+                                
+                                </button>
+                            </div>
+                        </div>
+
+                        <div x-show="form.attending === 'Yes'" x-transition>
+                            <label class="block text-[11px] uppercase tracking-wider text-dusty-200 mb-1">Number of Guests (including yourself)</label>
+                            <select x-model="form.guests" class="w-full bg-dusty-800/50 border border-gold-500/30 rounded-lg px-3 py-2 text-sm text-gold-100 focus:outline-none focus:border-gold-500">
+                                <option value="1">1 Person</option>
+                                <option value="2">2 People</option>
+                                <option value="3">3 People</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="w-full mt-2 bg-gradient-to-r from-gold-500 to-gold-600 text-dusty-900 py-3 rounded-lg text-xs uppercase font-display tracking-widest shadow-md hover:opacity-95 active:scale-[0.99] transition-transform">
+                            Submit Response
+                        </button>
+                    </form>
+                </template>
+
+                <template x-if="rsvpSubmitted">
+                    <div class="text-center py-8 space-y-4" x-transition:enter="transition ease-out duration-500">
+                        <div class="w-12 h-12 bg-emerald-950 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-xl border border-emerald-800">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <h4 class="font-display text-gold-600 text-sm tracking-wide">Response Successfully Received!</h4>
+                        <p class="text-xs text-dusty-100 px-4">
+                            Thank you for updating your availability. <br>
+                            <span class="italic text-dusty-300 font-serif" x-text="form.attending === 'Yes' ? 'We can\'t wait to celebrate with you!' : 'You will be missed dearly.'"></span>
+                        </p>
+                    </div>
+                </template>
+            </div>
+
+            <div class="flex items-center justify-center gap-4 pt-4 border-t border-gold-500/20 pb-8">
+                <button @click="shareLink()" class="flex items-center space-x-2 text-xs border border-gold-500/40 px-4 py-2 rounded-full bg-dusty-800/40 text-gold-600 font-medium active:bg-dusty-800">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Share Link</span>
+                </button>
+                <button @click="saveToCalendar()" class="flex items-center space-x-2 text-xs border border-gold-500/40 px-4 py-2 rounded-full bg-dusty-800/40 text-gold-600 font-medium active:bg-dusty-800">
+                    <i class="far fa-calendar-plus"></i>
+                    <span>Save to Calendar</span>
+                </button>
+            </div>
+
+            <p class="text-[9px] text-center text-dusty-400 tracking-widest uppercase">With Compliments From Families of Donia & Mohamed</p>
+
+        </div>
+    </div>
+
+    <script>
+        function weddingApp() {
+            return {
+                isOpen: false,
+                isMuted: true,
+                rsvpSubmitted: false,
+                form: {
+                    name: '',
+                    attending: 'Yes',
+                    guests: '1'
+                },
+                countdown: {
+                    days: '00',
+                    hours: '00',
+                    minutes: '00',
+                    seconds: '00'
+                },
+                openInvitation() {
+                    this.isOpen = true;
+                    this.startCountdown();
+                    this.initPetals();
+                    const audio = document.getElementById('bgMusic');
+                    audio.play().then(() => {
+                        this.isMuted = false;
+                    }).catch(error => console.log("Audio playback waiting on strict privacy permissions"));
+                },
+                toggleMusic() {
+                    const audio = document.getElementById('bgMusic');
+                    if (audio.paused) {
+                        audio.play();
+                        this.isMuted = false;
+                    } else {
+                        audio.pause();
+                        this.isMuted = true;
+                    }
+                },
+                startCountdown() {
+                    const targetDate = new Date('July 25, 2026 17:00:00').getTime();
+                    
+                    const update = () => {
+                        const now = new Date().getTime();
+                        const diff = targetDate - now;
+                        
+                        if (diff <= 0) return;
+
+                        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+                        this.countdown.days = String(d).padStart(2, '0');
+                        this.countdown.hours = String(h).padStart(2, '0');
+                        this.countdown.minutes = String(m).padStart(2, '0');
+                        this.countdown.seconds = String(s).padStart(2, '0');
+                    };
+                    
+                    update();
+                    setInterval(update, 1000);
+                },
+                submitRSVP() {
+                    confetti({
+                        particleCount: 150,
+                        spread: 60,
+                        origin: { y: 0.7 },
+                        // ألوان الكونفيتي تم تعديلها للكشمير الغامق والدهبي
+                        colors: ['#d4af37', '#7F5054', '#B8868A', '#aa8c2c']
+                    });
+                    this.rsvpSubmitted = true;
+                },
+                shareLink() {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'Wedding Invitation: Donia & Mohamed',
+                            text: 'Join us to celebrate the beautiful union of Donia & Mohamed.',
+                            url: window.location.href
+                        }).catch(err => console.log(err));
+                    } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        alert("Invitation link copied to clipboard successfully!");
+                    }
+                },
+                saveToCalendar() {
+                    const icsString = [
+                        'BEGIN:VCALENDAR',
+                        'VERSION:2.0',
+                        'BEGIN:VEVENT',
+                        'URL:' + window.location.href,
+                        'DTSTART:20260725T210000Z',
+                        'DTEND:20260726T020000Z',
+                        'SUMMARY:The Wedding of Donia & Mohamed',
+                        'DESCRIPTION:Two Souls, One Destiny – A Lifetime written by Allah. Join us for our wedding celebration.',
+                        'LOCATION:Villa Fehed Hall', // 
+                        'END:VEVENT',
+                        'END:VCALENDAR'
+                    ].join('\r\n');
+
+                    const blob = new Blob([icsString], { type: 'text/calendar;charset=utf-8' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = 'wedding_donia_mohamed.ics';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                },
+                initPetals() {
+                    const container = document.getElementById('petal-container');
+                    const totalPetals = 15;
+                    for (let i = 0; i < totalPetals; i++) {
+                        const petal = document.createElement('div');
+                        petal.classList.add('petal');
+                        petal.style.left = Math.random() * 100 + 'vw';
+                        petal.style.width = Math.random() * 12 + 6 + 'px';
+                        petal.style.height = Math.random() * 12 + 6 + 'px';
+                        petal.style.animation = `floatPetal ${Math.random() * 5 + 6}s linear infinite`;
+                        petal.style.animationDelay = `${Math.random() * 5}s`;
+                        container.appendChild(petal);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
